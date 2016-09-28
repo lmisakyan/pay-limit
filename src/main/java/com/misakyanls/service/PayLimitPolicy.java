@@ -5,36 +5,26 @@ import com.misakyanls.model.Payment.Status;
 import com.misakyanls.model.limit.Limit;
 import com.misakyanls.repository.LimitRepository;
 
+import java.util.Objects;
+
 public final class PayLimitPolicy {
-	private LimitRepository limitRepository;
+    private final LimitRepository limitRepository;
 
-	public void validate(Payment payment) {
-		if (payment == null) {
-			throw new IllegalArgumentException(
-					"The 'payment' argument must not be null");
-		} else if (payment.getAccount() == null) {
-			throw new IllegalArgumentException(
-					"The 'account' attribute must not be null or empty");
-		} else if (payment.getService() == null) {
-			throw new IllegalArgumentException(
-					"The 'service' attribute must not be null");
-		} else if (payment.getAmount() == null) {
-			throw new IllegalArgumentException(
-					"The 'amount' attribute must not be null");
-		}
+    public PayLimitPolicy(LimitRepository limitRepository) {
+        this.limitRepository = limitRepository;
+    }
 
-		for (Limit limit : limitRepository.getLimits(payment.getService())) {
-			limit.validate(payment);
-			if (payment.getStatus() == Status.SUBMIT_REQUIRED)
-				break;
-		}
+    public void validate(Payment payment) {
+        Objects.requireNonNull(payment, "The 'payment' argument must not be null");
 
-		if (payment.getStatus() == Status.WAITING)
-			payment.setStatus(Status.VALID);
-	}
+        for (Limit limit : limitRepository.getLimits(payment.getService())) {
+            limit.validate(payment);
+            if (payment.getStatus() == Status.SUBMIT_REQUIRED)
+                break;
+        }
 
-	public void setLimitRepository(LimitRepository limitRepository) {
-		this.limitRepository = limitRepository;
-	}
+        if (payment.getStatus() == Status.WAITING)
+            payment.setStatus(Status.VALID);
+    }
 
 }

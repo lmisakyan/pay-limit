@@ -8,8 +8,8 @@ import com.misakyanls.model.Service;
 import com.misakyanls.model.Payment.Status;
 
 public class AllLimitHelper {
-	static final Service service = new Service("1", "Service 1");
-	static final Account account = new Account("acc_number");
+	private static final Service service = new Service("1", "Service 1");
+	private static final Account account = new Account("acc_number");
 
 	public static Payment createPayment() {
 		return new Payment(service, account, BigDecimal.ONE, Status.WAITING);
